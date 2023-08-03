@@ -79,12 +79,10 @@
 //   }
 // }
 
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -92,9 +90,10 @@ class MainScreen extends StatefulWidget {
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
+
 class _MainScreenState extends State<MainScreen> {
   List<File> _pictures = [];
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,12 +105,25 @@ class _MainScreenState extends State<MainScreen> {
           children: [
             ElevatedButton(
               onPressed: _onPressed,
-              child: const Text("Add Pictures"),
+              child: const Text('Get and Resize Pictures'),
             ),
-            for (var picture in _pictures) SizedBox(
-              height: 200,
-              width: 200,
-              child: Image.file(picture),),
+            _pictures.isNotEmpty
+                ? Column(
+                    children: _pictures.map((picture) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.file(
+                            picture,
+                            height: 200,
+                            width: 200,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  )
+                : const SizedBox.shrink(),
           ],
         ),
       ),
@@ -126,45 +138,23 @@ class _MainScreenState extends State<MainScreen> {
 
       List<String> resizedPictures = [];
       for (var picture in pictures) {
-        String resizedPath = await resizeImage(picture);
-        resizedPictures.add(resizedPath);
+        String? resizedPath = await resizeImage(picture);
+        resizedPictures.add(resizedPath!);
       }
 
       setState(() {
-        _pictures = resizedPictures.cast<File>();
+        _pictures = resizedPictures.map((path) => File(path)).toList();
       });
-    } catch (exception) {
-      // Handle exception here
-    }
+      // ignore: empty_catches
+    } catch (exception) {}
   }
 
-
-// _onPressed() async {
-//     final pictures = await ImagePicker().pickImage(source: ImageSource.camera);
-//     if(pictures == null) return;
-//     final imagess = File(pictures.path);
-//     setState(() {
-//       _pictures.add(imagess);
-//     });
-  
-//   }
-
-
-
-
-  Future<String> resizeImage(String filePath) async {
-    File compressedFile = (await FlutterImageCompress.compressAndGetFile(
-      filePath,
-      filePath,
-      quality: 50,
-    )) as File;
-
-    return compressedFile.path;
-  }
-
-  void _clearAll() {
-    setState(() {
-      _pictures.clear();
-    });
+  Future<String?> resizeImage(String imagePath) async {
+    final compressedImagePath = await FlutterImageCompress.compressAndGetFile(
+      imagePath,
+      imagePath.replaceAll('.jpg', '_compressed.jpg'),
+      quality: 75,
+    );
+    return compressedImagePath?.path;
   }
 }
