@@ -83,6 +83,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:insta_image_viewer/insta_image_viewer.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -113,11 +114,13 @@ class _MainScreenState extends State<MainScreen> {
                       return Center(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Image.file(
-                            picture,
-                            height: 200,
-                            width: 200,
-                            fit: BoxFit.cover,
+                          child: InstaImageViewer(
+                            child: Image.file(
+                              picture,
+                              height: 400,
+                              width: 400,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       );
